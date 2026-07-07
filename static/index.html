@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TruthLens — News Credibility Analyzer</title>
+  <style>
+    :root{--bg:#07111f;--panel:#0d1a2d;--line:#20304a;--ink:#f5f7ff;--muted:#8fa1bd;--cyan:#38d9c5;--violet:#806cff;--amber:#ffbd59;--red:#ff647c}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 20% 0,#152a48 0,transparent 35%),var(--bg);color:var(--ink);font:15px/1.55 Inter,Segoe UI,sans-serif;min-height:100vh}
+    .shell{max-width:1180px;margin:auto;padding:34px 22px 60px}.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px}.brand{font-size:21px;font-weight:800}.brand i{color:var(--cyan);font-style:normal}.tag{padding:7px 12px;border:1px solid var(--line);border-radius:30px;color:var(--muted);font-size:12px}
+    .hero{max-width:760px;margin-bottom:30px}.eyebrow{color:var(--cyan);font-weight:700;letter-spacing:.15em;text-transform:uppercase;font-size:11px}.hero h1{font-size:clamp(36px,6vw,68px);line-height:1.02;letter-spacing:-.045em;margin:12px 0}.hero h1 span{background:linear-gradient(90deg,var(--cyan),#82a7ff,var(--violet));color:transparent;background-clip:text}.hero p{color:var(--muted);font-size:17px;max-width:620px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.card{background:linear-gradient(145deg,rgba(17,34,56,.94),rgba(9,21,38,.96));border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 18px 70px #0005}
+    label{display:block;font-size:12px;color:#b8c6db;font-weight:700;margin:16px 0 7px;text-transform:uppercase;letter-spacing:.06em}input,textarea{width:100%;background:#071322;border:1px solid #253750;color:var(--ink);border-radius:11px;padding:12px 14px;font:inherit;outline:none;transition:.2s}textarea{height:205px;resize:vertical}input:focus,textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #38d9c51a}
+    .actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}button{border:0;border-radius:11px;padding:12px 17px;font-weight:800;cursor:pointer;background:linear-gradient(90deg,var(--cyan),#66a8ff);color:#04101c}button.secondary{background:#15243a;color:#ccd8e9;border:1px solid #2a3b55}button:disabled{opacity:.55;cursor:wait}
+    .drop{margin-top:5px;border:1px dashed #3b5878;background:#091625;border-radius:13px;padding:16px;text-align:center;cursor:pointer;transition:.2s}.drop:hover,.drop.over{border-color:var(--cyan);background:#0c2030}.drop strong{display:block}.drop small{color:var(--muted)}.filepill{display:none;margin-top:8px;padding:9px 11px;border-radius:9px;background:#10283a;color:var(--cyan);font-size:12px}
+    .empty{height:100%;min-height:430px;display:grid;place-content:center;text-align:center;color:var(--muted)}.empty .orb{font-size:50px;margin-bottom:10px}.hidden{display:none!important}
+    .scoreline{display:flex;gap:18px;align-items:center}.rings{display:flex;gap:10px}.ring{--score:0;width:108px;height:108px;border-radius:50%;background:conic-gradient(var(--cyan) calc(var(--score)*1%),#20304a 0);display:grid;place-items:center;position:relative}.ring.truth{background:conic-gradient(var(--violet) calc(var(--score)*1%),#20304a 0)}.ring:before{content:"";position:absolute;inset:9px;border-radius:50%;background:#0d1a2d}.score{position:relative;text-align:center;font-size:29px;font-weight:900;line-height:1}.score small{display:block;font-size:8px;color:var(--muted);margin-top:6px;letter-spacing:.08em}.verdict h2{font-size:22px;margin:0 0 6px}.verdict p{color:var(--muted);margin:0}
+    .meter{margin-top:19px}.meterhead{display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px}.bar{height:7px;border-radius:9px;background:#1c2b42;overflow:hidden}.fill{height:100%;border-radius:9px;background:linear-gradient(90deg,var(--cyan),var(--violet));width:0;transition:width .7s}
+    .signals{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}.signal{background:#091625;border:1px solid #1e3048;border-radius:12px;padding:13px}.signaltop{display:flex;justify-content:space-between;font-weight:700;font-size:13px}.signal p{color:var(--muted);font-size:11px;margin:5px 0 0}.good{color:var(--cyan)}.warn{color:var(--amber)}.bad{color:var(--red)}
+    .lists{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}.lists h3{font-size:13px;margin:0 0 8px}.lists ul{padding-left:17px;margin:0;color:#afbdd1;font-size:12px}.disclaimer{margin-top:18px;padding:11px 13px;border-left:3px solid var(--amber);background:#ffbd590c;color:#b9c5d6;font-size:11px}
+    .conclusion{margin-top:18px;padding:16px;border-radius:13px;background:linear-gradient(110deg,#102a38,#151d39);border:1px solid #2a4860}.conclusion small{color:var(--cyan);font-weight:800;text-transform:uppercase;letter-spacing:.1em}.conclusion h3{font-size:21px;margin:4px 0}.conclusion p{color:#b4c2d5;margin:0;font-size:12px}.claims{margin-top:18px}.claims h3{font-size:14px}.claim{padding:12px 0;border-top:1px solid var(--line)}.claimq{font-size:12px;color:#dbe5f3;margin-bottom:5px}.claimmeta{font-size:11px}.claimmeta span{font-weight:800;margin-right:7px}
+    .mode{margin-top:10px;font-size:11px;color:var(--muted)}.mode strong{color:var(--cyan)}
+    footer{text-align:center;color:#647894;margin-top:28px;font-size:12px}@media(max-width:850px){.grid{grid-template-columns:1fr}.hero h1{font-size:45px}.signals,.lists{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="shell">
+  <nav class="nav"><div class="brand"><i>◉</i> TruthLens</div><div class="tag">Explainable • Offline • Privacy-first</div></nav>
+  <section class="hero"><div class="eyebrow">Read beyond the headline</div><h1>Spot the signals.<br><span>Question the story.</span></h1><p>Paste a headline or article to inspect sourcing, emotional pressure, clickbait patterns, and checkable evidence.</p></section>
+  <section class="grid">
+    <div class="card">
+      <label for="title">Headline</label><input id="title" placeholder="Paste the headline here…">
+      <label for="body">Article text</label><textarea id="body" placeholder="Paste the article, excerpt, or social post…"></textarea>
+      <label>Or attach the story</label>
+      <div class="drop" id="drop"><strong>＋ Drop a document or screenshot</strong><small>PDF, DOCX, TXT, HTML, PNG, JPG or WEBP · max 12 MB</small><input id="file" type="file" hidden accept=".pdf,.docx,.txt,.md,.html,.htm,.png,.jpg,.jpeg,.webp"></div>
+      <div class="filepill" id="filepill"></div>
+      <label for="source">Publisher or source (optional)</label><input id="source" placeholder="Example: Reuters, personal blog, unknown…">
+      <div class="actions"><button id="analyze">Analyze credibility</button><button class="secondary" id="sample">Load demo</button></div>
+      <p id="error" class="bad"></p>
+    </div>
+    <div class="card">
+      <div id="empty" class="empty"><div><div class="orb">◌</div><strong>Your credibility report appears here</strong><br><small>Add an article and run the analysis.</small></div></div>
+      <div id="result" class="hidden">
+        <div class="scoreline"><div class="rings"><div class="ring" id="ring"><div class="score"><span id="score">0</span><small>RELIABILITY</small></div></div><div class="ring truth" id="truthring"><div class="score"><span id="truthscore">0</span><small>TRUTH</small></div></div></div><div class="verdict"><h2 id="verdict"></h2><p><span id="words"></span> words analyzed · <span id="confidence"></span>% signal confidence</p></div></div>
+        <div class="mode">Analysis used: <strong id="mode">Offline fallback</strong></div>
+        <div class="meter"><div class="meterhead"><span>Analysis confidence</span><span id="confidence2"></span></div><div class="bar"><div class="fill" id="confidencebar"></div></div></div>
+        <div class="signals" id="signals"></div>
+        <div class="lists"><div><h3 class="bad">⚑ Signals to investigate</h3><ul id="flags"></ul></div><div><h3 class="good">✓ Helpful credibility signals</h3><ul id="strengths"></ul></div></div>
+        <div class="conclusion"><small>Final conclusion</small><h3 id="conclusion"></h3><p id="conclusiondetail"></p></div>
+        <div class="claims"><h3>Statement review</h3><div id="claims"></div></div>
+        <div class="sources" id="sources"></div>
+        <div class="disclaimer" id="disclaimer"></div>
+      </div>
+    </div>
+  </section>
+  <footer>TruthLens is a critical-reading assistant, not an automated fact-checker.</footer>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const drop=$("drop"), fileInput=$("file");
+drop.onclick=()=>fileInput.click();
+drop.ondragover=e=>{e.preventDefault();drop.classList.add("over")};
+drop.ondragleave=()=>drop.classList.remove("over");
+drop.ondrop=e=>{e.preventDefault();drop.classList.remove("over");if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0])};
+fileInput.onchange=()=>fileInput.files[0]&&handleFile(fileInput.files[0]);
+function read64(file){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result.split(",")[1]);r.onerror=no;r.readAsDataURL(file)})}
+async function handleFile(file){
+  $("error").textContent="";
+  const isImage=file.type.startsWith("image/")||/\.(png|jpe?g|webp)$/i.test(file.name);
+  $("filepill").style.display="block";$("filepill").textContent=`Attached: ${file.name} · ${(file.size/1024).toFixed(0)} KB`;
+  if(file.size>12*1024*1024){$("error").textContent="File is too large. Maximum size is 12 MB.";return}
+  if(isImage)await extractImage(file);else await extract(file);
+}
+async function extractImage(file){
+  try{
+    if(!window.Tesseract)throw Error("Local OCR could not load. Check your internet connection and refresh.");
+    $("error").className="good";$("error").textContent="Reading screenshot locally… 0%";
+    const result=await Tesseract.recognize(file,"eng",{logger:m=>{
+      if(m.status==="recognizing text")$("error").textContent=`Reading screenshot locally… ${Math.round(m.progress*100)}%`;
+    }});
+    const text=result.data.text.trim();
+    if(text.split(/\s+/).length<8)throw Error("I couldn't find enough readable text. Try a clearer screenshot.");
+    $("body").value=text;$("error").textContent="✓ Screenshot extracted. Running credibility analysis…";
+    await analyze();
+  }catch(e){$("error").className="bad";$("error").textContent=e.message}
+}
+async function extract(file){
+  try{
+    $("error").textContent="Reading attachment…";
+    const r=await fetch("/api/extract",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({filename:file.name,mime:file.type,data:await read64(file)})});
+    const d=await r.json();if(!r.ok)throw Error(d.error);
+    $("body").value=d.text;$("error").className="good";$("error").textContent=`✓ ${d.kind} extracted. Running credibility analysis…`;
+    await analyze();
+  }catch(e){$("error").className="bad";$("error").textContent=e.message}
+}
+$("sample").onclick=()=>{$("title").value="SHOCKING secret study proves this miracle drink cures everything!";$("body").value='People are saying a new drink can cure every illness. Insiders claim the result is undeniable, but the viral post provides no study link, named researcher, sample size, or official statement. "Everyone needs to see this!" the post says.';$("source").value="Unknown viral post"};
+async function analyze(){
+  $("error").textContent="";$("analyze").disabled=true;$("analyze").textContent="Analyzing…";
+  try{
+    const r=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:$("title").value,body:$("body").value,source:$("source").value})});
+    const d=await r.json();if(!r.ok)throw Error(d.error);
+    $("empty").classList.add("hidden");$("result").classList.remove("hidden");
+    $("score").textContent=d.reliability_score;$("ring").style.setProperty("--score",d.reliability_score);$("truthscore").textContent=d.truth_score;$("truthring").style.setProperty("--score",d.truth_score);$("verdict").textContent=d.verdict;
+    $("words").textContent=d.word_count;$("confidence").textContent=d.confidence;$("confidence2").textContent=d.confidence+"%";$("confidencebar").style.width=d.confidence+"%";
+    $("signals").innerHTML=d.signals.map(s=>`<div class="signal"><div class="signaltop"><span>${s.name}</span><span class="${s.tone}">${s.value}/100</span></div><p>${s.detail}</p></div>`).join("");
+    const items=(xs,fallback)=>xs.length?xs:[fallback];
+    $("flags").innerHTML=items(d.flags,"No major style flags detected").map(x=>`<li>${x}</li>`).join("");
+    $("strengths").innerHTML=items(d.strengths,"Add citations and named sources").map(x=>`<li>${x}</li>`).join("");
+    $("conclusion").textContent=d.conclusion;$("conclusiondetail").textContent=d.conclusion_detail;
+    $("mode").textContent=d.analysis_mode||"Offline fallback";
+    $("claims").innerHTML=d.claim_review.length?d.claim_review.map(c=>`<div class="claim"><div class="claimq">“${c.statement}”</div><div class="claimmeta"><span class="${c.tone}">${c.status}</span>${c.reason}</div></div>`).join(""):`<div class="claimmeta">Add a longer article to review individual statements.</div>`;
+    $("sources").innerHTML=d.sources?.length?`<h3>Sources checked</h3>${d.sources.map(s=>`<a href="${s.url}" target="_blank" rel="noopener">${s.title}</a>`).join("")}`:"";
+    if(d.ai_error)$("error").textContent="AI unavailable: "+d.ai_error+" Using offline analysis.";
+    $("disclaimer").textContent="Important: "+d.disclaimer;
+  }catch(e){$("error").textContent=e.message}finally{$("analyze").disabled=false;$("analyze").textContent="Analyze credibility"}
+}
+$("analyze").onclick=analyze;
+</script>
+</body>
+</html>
